@@ -1,0 +1,64 @@
+Menu="Dashboard"
+Icon="gpustat.png"
+Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.0.1', '<')"
+---
+<?php
+    /*
+      MIT License
+
+      Copyright (c) 2025 optimous012
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+    */
+
+    $hbm_cfg = parse_plugin_cfg('hbm', true);
+?>
+
+<style type="text/css">
+    @import url("/plugins/hbm/css/style.css");
+</style>
+
+<table id='db-box1' class='dash_hbastat dashboard box1' style='display:none'>
+    <thead sort='953'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
+    <tbody sort='953' class='sortable'>
+        <tr>
+            <td></td>
+            <td class='next' colspan='3'>
+                <i class='icon-hardware'></i>
+                <div class='section'>Host Bus Adapter<br>
+<?php if($hbm_cfg['DISPTEMP']) : ?>
+                    <span>Temperature: <span class='hba-temp'></span>
+<?php endif; ?>
+                </div>
+                <i class='fa fa-fw chevron mt0' id='dash_hbastat_toggle' onclick='toggleChevron("dash_hbastat_toggle",0)'></i>
+                <a href='/Dashboard/Settings/HBAStatSettings' id='dash_hbastat_settings' title='Go to HBA Statistics settings'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
+                <br><br>
+            </td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript" src="/plugins/hbm/scripts/hbastat.js"></script>
+<script type="text/javascript">
+    $(hbastat_status);
+    if (<?=$hbm_cfg['UIREFRESH'];?>) {
+        setInterval(hbastat_status, <?=max(abs($display['refresh']), $hbm_cfg['UIREFRESHINT']);?>);
+    }
+    $(hbastat_dash);
+</script>
