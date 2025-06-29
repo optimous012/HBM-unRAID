@@ -1,2 +1,2 @@
-# HBM-unRAID
+# hbastat
 Host bus adapter card temperature monitor

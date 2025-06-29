@@ -1,0 +1,92 @@
+Menu="Utilities"
+Icon="hbastat.png"
+Title="HBA Statistics"
+---
+
+<?php
+    /*
+      MIT License
+
+      Copyright (c) 2020-2022 b3rs3rk
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+    */
+
+    function save_ini_file($file, $array) {
+       $plugin = "hbastat";
+
+	  $res = array();
+      foreach($array as $key => $val) {
+        if(is_array($val)) {
+          $res[] = PHP_EOL."[$key]";
+          foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
+        } else {
+          $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
+         }
+      }
+
+      /* Write changes to tmp file. */
+      file_put_contents($file, implode(PHP_EOL, $res));
+
+      /* Write changes to flash. */
+      $file_path = pathinfo($file);
+      if ($file_path['extension'] == "cfg") {
+        file_put_contents("/boot/config/plugins/".$plugin."/".basename($file), implode(PHP_EOL, $res));
+      }
+    }
+
+    function save_cfg($val) {
+      
+      save_ini_file("hbastat.cfg", $val) ;
+    }
+
+    $cfg = $hbastat_cfg        = parse_plugin_cfg("hbastat", true);
+
+    include_once './plugins/hbastat/hbastatus.php';
+
+    if (count($_POST)) {
+      $cfg = NULL ;
+      if ($_POST['#apply'] == "_(Apply)_") {
+        array_map(function($k, $v) use (&$cfg) { if($k[0] != "#") $cfg[$k] = $v; }, array_keys($_POST), $_POST );
+        save_cfg($cfg) ;
+        $hbastat_cfg        = parse_plugin_cfg("hbastat", true);
+        unset($_POST) ;
+      } 
+    }
+
+?>
+
+<h2><b>Runtime</b></h2>
+<form markdown="1" name="hbastat" method="POST" >
+  <input type="hidden" name="#file" value="hbastat/hbastat.cfg" />
+
+Temperature Format:
+: <select id="TEMPFORMAT" name="TEMPFORMAT" size="1">
+    <?=mk_option($hbastat_cfg['TEMPFORMAT'], "C", "Celsius");?>
+    <?=mk_option($hbastat_cfg['TEMPFORMAT'], "F", "Fahrenheit");?>
+  </select>
+
+UI Automatic Refresh / Interval (Milliseconds):
+: <select id="UIREFRESH" name="UIREFRESH" size="1">
+    <?=mk_option($hbastat_cfg['UIREFRESH'], "0", "No");?>
+    <?=mk_option($hbastat_cfg['UIREFRESH'], "1", "Yes");?>
+  </select>
+  <input type="number" name="UIREFRESHINT" class="narrow" min="2000" maxlength="5" value="<?=$hbastat_cfg['UIREFRESHINT'];?>" placeholder="5000">
+
+</form>
