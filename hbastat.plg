@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "hbastat">
 <!ENTITY author    "Optimous">
-<!ENTITY version   "2025.06.27">
+<!ENTITY version   "2025.06.28">
 <!ENTITY launch    "Settings/HBAStatSettings">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/optimous012/HBM-unRAID/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
